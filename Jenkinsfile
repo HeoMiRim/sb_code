@@ -62,7 +62,8 @@ pipeline {
           
             sh "docker push ${dockerHubRegistry}:${currentBuild.number}"
             sh "docker push ${dockerHubRegistry}:latest"
-          }  
+            
+      }
       post {
         failure {
           echo 'Docker Image Push failure'
@@ -76,6 +77,6 @@ pipeline {
         }
       }
     }
-
+      
   }
 }
