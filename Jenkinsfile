@@ -11,10 +11,11 @@ pipeline {
     dockerHubRegistry = '10.7.7.21/sbimage'
     githubWeb = 'https://github.com/HeoMiRim/sb_code.git'
   }
+
   stages {
     stage('Checkout Github') {
       steps {
-          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: 'githubWeb']]])
+          checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: githubCredential, url: githubWeb]]])
           }
       post {
         failure {
@@ -25,7 +26,3 @@ pipeline {
         }
       }
     }
-
-    
-  }
-}
