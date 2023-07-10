@@ -8,7 +8,7 @@ pipeline {
     gitName = 'HeoMiRim'
     gitEmail = 'meing1340@gmail.com'
     githubCredential = 'git_cre'
-    dockerHubRegistry = '10.7.7.21/sbimage'
+    dockerHubRegistry = '10.7.7.21:5000/sbimage'
     githubWeb = 'https://github.com/HeoMiRim/sb_code.git'
   }
 
@@ -37,6 +37,21 @@ pipeline {
         }
         success {
           echo 'Maven jar build success'  
+        }
+      }
+    }
+
+    stage('Docker Image Build') {
+      steps {
+          sh "docker build -t ${dockerHubRegistry}:${currentBuild.number} ."
+          sh "docker build -t ${dockerHubRegistry}:latest ."
+          }
+      post {
+        failure {
+          echo 'Docker image build failure'
+        }
+        success {
+          echo 'Docker image build success'  
         }
       }
     }
