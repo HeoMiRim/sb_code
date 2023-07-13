@@ -9,7 +9,9 @@ pipeline {
     gitEmail = 'meing1340@gmail.com'
     githubCredential = 'git_cre'
     dockerHubRegistry = '10.7.7.21:5000/sbimage'
-    githubWeb = 'https://github.com/HeoMiRim/sb_code.git'
+    gitWebaddress = 'https://github.com/HeoMiRim/sb_code.git'
+    gitSshaddress = 'git@github.com:HeoMiRim/sb_code.git'
+    gitDepaddress = 'git@github.com:HeoMiRim/deploy.git'
   }
 
   stages {
@@ -79,11 +81,24 @@ pipeline {
       }
     }
     
-    stage('Docker Container Deploy') {
+    stage('k8s manifest file update') {
       steps {
-          sh "docker rm -f spring"
-          sh "docker run -dp 7979:8085 --name spring ${dockerHubRegistry}:${currentBuild.number}"
-          }
+        git credentialsId: githubCredential,
+            url: gitDepaddress,
+            branch: 'main'
+
+        // 이미지 태그 변경 후 메인 브랜치에 푸시
+        sh "git config --global user.email ${gitEmail}"
+        sh "git config --global user.name ${gitName}"
+        sh "sed -i 's@${dockerHubRegistry}:.*@${dockerHubRegistry}:${currentBuild.number}@g' deploy.yml"
+        sh "git add ."
+        sh "git commit -m 'fix:${dockerHubRegistry} ${currentBuild.number} image versioning'"
+        sh "git branch -M main"
+        sh "git remote remove origin"
+        sh "git remote add origin ${gitDepaddress}"
+        sh "git push -u origin main"
+
+      }
       post {
         failure {
           echo 'Container Deploy failure'
